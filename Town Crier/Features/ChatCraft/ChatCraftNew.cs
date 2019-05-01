@@ -13,6 +13,7 @@ namespace DiscordBot.Modules.ChatCraft
 {
 	public static class Emojis
 	{
+		public static Emoji Wave = new Emoji("👋");
 		public static Emoji Repeat { get; } = new Emoji("🔁");
 		public static Emoji Tick { get; } = new Emoji("✅");
 		public static Emoji Gem { get; } = new Emoji("💎");

@@ -15,9 +15,46 @@ using Jira.SDK.Domain;
 using Jira.SDK.Tools;
 using Discord.Rest;
 
+
+
 namespace BugReporter
 {
-    public class JiraReporter : ModuleBase<SocketCommandContext>
+	public class ThisBitNeedsToGoInProgram
+	{
+		DiscordSocketClient client;
+
+		//Kudos to Sol's mate
+		private async Task OnReactAddedAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+		{
+			if (!reaction.User.IsSpecified || !JiraReporter.Settings.CheckAllowed(reaction.User.Value as SocketUser))
+			{
+				return;
+			}
+
+			string type;
+
+			if (reaction.Emote.Name == "🐛")
+			{
+				type = "Bug";
+			}
+			else if (reaction.Emote.Name == "🚀")
+			{
+				type = "Story";
+			}
+			else
+			{
+				return;
+			}
+
+			SocketTextChannel textChannel = channel as SocketTextChannel;
+
+			RestUserMessage userMessage = channel.GetMessageAsync(message.Id).Result as RestUserMessage;
+
+			Task.Run(() => new JiraReporter().Report(reaction.User.Value, client, userMessage, new InteractiveService(client, TimeSpan.FromMinutes(5)), type));
+		}
+	}
+
+	public class JiraReporter : ModuleBase<SocketCommandContext>
     {
         public static JiraReportSettings Settings
         {
